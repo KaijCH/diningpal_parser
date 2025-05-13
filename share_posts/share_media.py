@@ -1,30 +1,58 @@
-from errors.errors import *
+from configs import default_media
+from errors.failure_enums import * 
+from loggers import runtime_logger
 
-class ShareMedia:
+class PushMedia:
 
-    def __init__(self, media_object: bytes):
+    def __init__(self):
         """
-            initiate media onject, handle for cloud storage uri or local cache
+            initiate media object, handle for cloud storage uri or local cache
         
         """
-        self.bytes: bytes = media_object
+        # media object bytes
+        self.object: bytes = default_media.DefaultPictureDish
+        # resolution height
+        self.height: int = 0
+        # resolution width
+        self.width: int= 0
+        # media file name
+        self.name: str = ""
+        # media local cache addr
         self.cache: str = ""
+        # media cloud storge addr
         self.uri: str = ""
-        self.handles()
         
-    def handles(self) -> None:
+    def ingests(self, object: bytes) -> ExqtError:
         """
-            handle media object, if fail uploading to cloud storage, reserve to local folder
+            ingest picture media from user upload atempt
         
         """
+        # todo: implementing verification of picture requirement
+        if not object:
+            runtime_logger.logs()
+            return FailureMissingMedia
+        self.object = object
+        # fetch media info
+        err = self.analyzes()
+        if err is not None:
+            return err
+        # upload to cloud storage ot cache to local
         err = self.uploads()
-        if not err:
-            return
-        # todo: implement local cache ref
-        self.cache = ""
-        return 
+        if err is not None:
+            self.cache = ""
+            return err
+        return None
+    
+    def analyzes(self) -> None:
+        """
+            fetch media info: name, resolution, size, extension, format
 
-    def finalizes(self) -> Error:
+        """
+        # todo: fetch media, restrict media format
+        
+        return FailureMalformMedia
+        
+    def wraps(self) -> ExqtError:
         """
             final-check media online
         
@@ -33,19 +61,19 @@ class ShareMedia:
             return None
         return self.uploads()
     
-    def uploads(self) -> Error:
+    def uploads(self) -> ExqtError:
         """
             upload media to cloud storage
 
         """
         # todo: implement cloud storage invocation
         self.uri = ""
-        return ErrorHttpRequest
+        return FailureHttpRequest
 
     def locates(self) -> str:
         """
             return media storage uri
         
         """
-        return self.uri
+        return self.cache if not self.uri else self.uri
     
