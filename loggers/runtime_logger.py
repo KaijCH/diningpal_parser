@@ -2,6 +2,7 @@ from configs import default_file
 
 import threading
 import datetime
+import inspect
 import queue
 import sys
 
@@ -15,9 +16,8 @@ class RuntimeLogger:
             initiate logger singleton usable acorss diff class
         
         """
-        
-        self.developmewnt = default_file.UnderDevelopment
-        self.output = default_file.DefaultLogOutput
+        self.developmewnt: bool = default_file.UnderDevelopment
+        self.output: str = default_file.DefaultLogOutput
         
         self.halt = threading.Event()
         self.queue = queue.Queue()
@@ -54,41 +54,30 @@ class RuntimeLogger:
         self.halt.set()
         self.thread.join()
     
-    def warns(self, subsys: str, message: str = None) -> None:
+    def warns(self, context: str, message: str = None) -> None:
         """
             write warn level log with param
         
         """
-        epochs = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
-        local = datetime.datetime.now()
-        content = "[{level}] [{epochs} - {local}] [{subsys}]: {message}".format(
-            level=self.__warn, epochs=epochs, local=local, subsys=subsys, message=message
-            )
+        
+        content = "[{level}] {context}: {message}".format(level=self.__fail, context=context, message=message)
         self.queue.put(content)
     
-    def infos(self, subsys: str, message: str = None) -> None:
+    def infos(self, context: str, message: str = None) -> None:
         """
             write info level log with param
         
         """
-        epochs = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
-        local = datetime.datetime.now()
-        content = "[{level}] [{epochs} - {local}] [{subsys}]: {message}".format(
-            level=self.__info, epochs=epochs, local=local, subsys=subsys, message=message
-            )
-        self.__logs(message=content)
+        content = "[{level}] {context}: {message}".format(level=self.__fail, context=context, message=message)
+        self.queue.put(content)
     
-    def fails(self, subsys: str, message: str = None) -> None:
+    def fails(self, context: str, message: str = None) -> None:
         """
             write fail level log with param
         
         """
-        epochs = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
-        local = datetime.datetime.now()
-        content = "[{level}] [{epochs} - {local}] [{subsys}]: {message}".format(
-            level=self.__fail, epochs=epochs, local=local, subsys=subsys, message=message
-            )
-        self.__logs(message=content)
+        content = "[{level}] {context}: {message}".format(level=self.__fail, context=context, message=message)
+        self.queue.put(content)
 
 
 # logger singleton by var

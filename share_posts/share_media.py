@@ -1,6 +1,8 @@
-from configs import default_media
+from loggers.runtime_locater import *
+from loggers.runtime_logger import *
 from errors.failure_enums import * 
-from loggers import runtime_logger
+from configs import default_media
+
 
 class PushMedia:
 
@@ -10,7 +12,7 @@ class PushMedia:
         
         """
         # media object bytes
-        self.object: bytes = default_media.DefaultPictureDish
+        self.content: bytes = None
         # resolution height
         self.height: int = 0
         # resolution width
@@ -22,23 +24,25 @@ class PushMedia:
         # media cloud storge addr
         self.uri: str = ""
         
-    def ingests(self, object: bytes) -> ExqtError:
+    def ingests(self, content: bytes) -> ExqtError:
         """
             ingest picture media from user upload atempt
         
         """
         # todo: implementing verification of picture requirement
-        if not object:
-            runtime_logger.logs()
+        if not content:
+            logger.fails(subsys=locate_execution(), message="void media content")
             return FailureMissingMedia
-        self.object = object
+        self.content = content
         # fetch media info
         err = self.analyzes()
         if err is not None:
+            logger.fails(subsys=locate_execution(), message="malform media content")
             return err
         # upload to cloud storage ot cache to local
         err = self.uploads()
         if err is not None:
+            logger.warns(subsys=locate_execution(), message="media content upload")
             self.cache = ""
             return err
         return None
