@@ -1,10 +1,10 @@
-from loggers.runtime_locater import *
-from loggers.runtime_logger import *
-from errors.failure_enums import * 
+from loggers.runtime_locater import locate_execution
+from loggers.runtime_logger import logger
+from exqt_errors.error_enums import * 
 from configs import default_media
 
 
-class PushMedia:
+class ShareMedia:
 
     def __init__(self):
         """
@@ -26,28 +26,28 @@ class PushMedia:
         
     def ingests(self, content: bytes) -> ExqtError:
         """
-            ingest picture media from user upload atempt
+            ingest picture media from user upload action
         
         """
         # todo: implementing verification of picture requirement
         if not content:
-            logger.fails(subsys=locate_execution(), message="void media content")
+            logger.fails(context=locate_execution(), message="void media content")
             return FailureMissingMedia
         self.content = content
         # fetch media info
         err = self.analyzes()
         if err is not None:
-            logger.fails(subsys=locate_execution(), message="malform media content")
+            logger.fails(context=locate_execution(), message="malform media content")
             return err
-        # upload to cloud storage ot cache to local
+        # upload to cloud or cache to local
         err = self.uploads()
         if err is not None:
-            logger.warns(subsys=locate_execution(), message="media content upload")
+            logger.warns(context=locate_execution(), message="media content upload")
+            # todo: implement local cache addr
             self.cache = ""
-            return err
         return None
     
-    def analyzes(self) -> None:
+    def analyzes(self) -> ExqtError:
         """
             fetch media info: name, resolution, size, extension, format
 
@@ -58,11 +58,13 @@ class PushMedia:
         
     def wraps(self) -> ExqtError:
         """
-            final-check media online
+            final-check media existence in cloud storage
         
         """
+        # legit cloud existence
         if self.uri.strip():
             return None
+        # re-attempt uploads
         return self.uploads()
     
     def uploads(self) -> ExqtError:
@@ -71,7 +73,6 @@ class PushMedia:
 
         """
         # todo: implement cloud storage invocation
-        self.uri = ""
         return FailureHttpRequest
 
     def locates(self) -> str:

@@ -13,3 +13,7 @@ FailureEmptyInput = ExqtError("", 6)
 FailureInvalidInput = ExqtError("", 8)
 
 FailureMalformMedia = ExqtError("", 9)
+
+FailureSubmiterExpire = ExqtError("", 10)
+
+FailureMalformComponent = ExqtError("", 12)

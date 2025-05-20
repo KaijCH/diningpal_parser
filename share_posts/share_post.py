@@ -1,57 +1,100 @@
-from sectional_description import SectionalDescription
-from share_media import PushMedia
-from enum import Enum
+from share_details.share_detail import ShareDetail
+from exqt_errors.exqt_error import ExqtError
+from loggers.runtime_locater import locate_execution
+from loggers.runtime_logger import logger
+from sign_authors.sign_author import submiter
+from exqt_errors.error_enums import *
+
 import datetime
 import uuid
-from errors.failure_enums import ExqtError
+
 
 class SharePost:
 
+    Draft, Public, Private, Suspend = 0, 1, 2, 3
+
     def __init__(self) -> None:
         """
-            initiate share post
+            initiate share post for site / subject
         
         """
+        self.create_time = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
         self.share_id: str = uuid.uuid4().hex
-        self.status: PostStatus = PostStatus.Draft
+        self.author: str = submiter.endorses()
         self.title: str = ""
-        self.descriptions: list[SectionalDescription] = list()
+        self.summa: str = ""
+        self.score: int = 0
+        self.descriptions: dict[int, ShareDetail] = dict()
+        self.status: int = 0
     
     def entitles(self, title: str) -> ExqtError:
         """
             entitle share post, check post existence
         
         """
+        title = title.strip() 
+        if not title:
+            logger.fails(context=locate_execution(), message="empty title for post")
+            return FailureEmptyInput
         self.title = title
         return None
 
-    def describes(self, text: str, score: int, media: bytes, title) -> ExqtError:
+    def scores(self, score: int) -> ExqtError:
         """
-            enrich description section, handle media & text
-
+            rate score of share subject
+        
         """
-        media = PushMedia(media_object=media)
-        description = SectionalDescription(text=text, score=score, media=media, title=title)
-        self.descriptions.append(description)
+        if not 0 <= score <= 5:
+            return FailureInvalidInput
+        self.score = score
         return None
 
+    def summarizes(self, summa: str) -> ExqtError:
+        """
+            take summary for current share post
+        
+        """
+        summa = summa.strip()
+        if not summa:
+            logger.fails(context=locate_execution(), message="empty summary for post")
+            return FailureEmptyInput
+        self.summa = summa
+        return None
+
+    def enriches(self) -> ExqtError:
+        """
+            enqueue new description section
+
+        """
+        if not self.descriptions:
+            self.descriptions: dict[int, ShareDetail] = dict()
+        description = ShareDetail()
+        self.descriptions[len(self.descriptions)] = description
+        return None
+    
+    def finds(self, idx: int) -> tuple[ShareDetail, ExqtError]:
+        """
+            retrieve description section by index
+        
+        """
+        if idx not in self.descriptions:
+            logger.fails(context=locate_execution(), message="unfound description section")
+            return None, FailureInvalidInput
+        description = self.descriptions[idx]
+        return description, None
+        
     def wraps(self) -> ExqtError:
+        """
+            wrap check all sections in current post
+        
+        """
         for description in self.descriptions:
             err = description.wraps()
             if not err:
                 continue
             return err
-        self.create_time = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
-        self.status = PostStatus.Public
         return None
     
     def composes(self) -> ExqtError:
-        
+        self.status = self.Public
         return None
-    
-    
-class PostStatus(Enum):
-    Draft = 0
-    Private = 1
-    Public = 2
-    Suspend = 3

@@ -54,7 +54,7 @@ class RuntimeLogger:
         self.halt.set()
         self.thread.join()
     
-    def warns(self, context: str, message: str = None) -> None:
+    def warns(self, context: str, message: str = "") -> None:
         """
             write warn level log with param
         
@@ -63,7 +63,7 @@ class RuntimeLogger:
         content = "[{level}] {context}: {message}".format(level=self.__fail, context=context, message=message)
         self.queue.put(content)
     
-    def infos(self, context: str, message: str = None) -> None:
+    def infos(self, context: str, message: str = "") -> None:
         """
             write info level log with param
         
@@ -71,7 +71,7 @@ class RuntimeLogger:
         content = "[{level}] {context}: {message}".format(level=self.__fail, context=context, message=message)
         self.queue.put(content)
     
-    def fails(self, context: str, message: str = None) -> None:
+    def fails(self, context: str, message: str = "") -> None:
         """
             write fail level log with param
         
