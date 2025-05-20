@@ -1,7 +1,7 @@
 from exqt_errors.error_enums import *
 
 
-class ShareAuthor:
+class Explorer:
 
     def __init__(self) -> None:
         self.sign: str = ""
@@ -23,4 +23,4 @@ class ShareAuthor:
         return None
 
 
-submiter = ShareAuthor()
+explorer = Explorer()

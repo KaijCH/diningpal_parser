@@ -2,7 +2,7 @@ from share_details.share_detail import ShareDetail
 from exqt_errors.exqt_error import ExqtError
 from loggers.runtime_locater import locate_execution
 from loggers.runtime_logger import logger
-from sign_authors.sign_author import submiter
+from explorers.explorer import explorer
 from exqt_errors.error_enums import *
 
 import datetime
@@ -11,7 +11,14 @@ import uuid
 
 class SharePost:
 
-    Draft, Public, Private, Suspend = 0, 1, 2, 3
+    Draft, Private, Public, Delete = 0, 1, 2, 3
+
+    __status = {
+        Draft: "DRAFT",
+        Public: "PUBLIC",
+        Private: "Private",
+        Delete: "DELETE",
+    }
 
     def __init__(self) -> None:
         """
@@ -20,12 +27,12 @@ class SharePost:
         """
         self.create_time = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
         self.share_id: str = uuid.uuid4().hex
-        self.author: str = submiter.endorses()
+        self.explorer: str = explorer.endorses()
         self.title: str = ""
         self.summa: str = ""
         self.score: int = 0
         self.descriptions: dict[int, ShareDetail] = dict()
-        self.status: int = 0
+        self.status: int = self.Draft
     
     def entitles(self, title: str) -> ExqtError:
         """
