@@ -13,10 +13,10 @@ class SharePost:
 
     Draft, Private, Public, Delete = 0, 1, 2, 3
 
-    __status = {
+    PostStatus = {
         Draft: "DRAFT",
         Public: "PUBLIC",
-        Private: "Private",
+        Private: "PRIVATE",
         Delete: "DELETE",
     }
 
